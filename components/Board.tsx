@@ -10,6 +10,7 @@ import {
   MARGIN,
   OBSTACLE_SIZE,
   PLATE_SIZE,
+  directionValues,
 } from '@/constants/gameConstants'
 import {
   getBlankPlateAdjacent,
@@ -22,13 +23,11 @@ import {
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
-  withSequence,
-  withSpring,
+  withRepeat,
   withTiming,
 } from 'react-native-reanimated'
 import Plate from './Plate'
 import PressablePlate from './PressablePlate'
-import { print } from '@/utils/utils'
 
 type Props = {
   levelInitData: LevelData
@@ -51,14 +50,9 @@ export default function Board({ levelInitData }: Props) {
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
   const adjacentPlates = getBlankPlateAdjacent(levelData)
-  // print(
-  //   adjacentPlates.map((i) => ({ plate: i.plate, isMoveable: i.isMoveable }))
-  // )
   const moveablePlatesIndexes = adjacentPlates
     .filter((p) => p.isMoveable)
     .map((i) => i.plate.index)
-  // console.log('moveablePlatesIndexes')
-  // print(moveablePlatesIndexes)
 
   const isMoveable = (index: number) => {
     'worklet'
@@ -75,20 +69,14 @@ export default function Board({ levelInitData }: Props) {
     }
   }
 
-  const getBlockedAnimation = () => {
+  const getBlockedAnimation = (toValue: number) => {
     'worklet'
-    return withSequence(
-      withSpring(MARGIN / 2, { duration: 100 }),
-      withSpring(0, { duration: 100 })
-    )
+    return withRepeat(withTiming(toValue, { duration: 100 }), 2, true)
   }
 
-  const getHalfwayAnimation = () => {
+  const getBlockedFlingAnimation = (toValue: number) => {
     'worklet'
-    return withSequence(
-      withSpring(PLATE_SIZE / 2, { duration: 200 }),
-      withSpring(0, { duration: 200 })
-    )
+    return withRepeat(withTiming(toValue, { duration: 100 }), 2, true)
   }
 
   const getFlingAnimation = (toValue: number) => {
@@ -102,9 +90,21 @@ export default function Board({ levelInitData }: Props) {
     })
   }
 
+  const getAnimation = () => {
+    'worklet'
+    switch (nextMoveValue.value.type) {
+      case PlateNextMoveTypes.fling:
+        return getFlingAnimation(nextMoveValue.value.toValue)
+      case PlateNextMoveTypes.blockedFling:
+        return getBlockedFlingAnimation(nextMoveValue.value.toValue)
+      default:
+        return getBlockedAnimation(nextMoveValue.value.toValue)
+    }
+  }
+
   const handleFling = (pressedValue: PressedValue) => {
     'worklet'
-    // console.log('handleFling', pressedValue.plateIndex)
+    console.log('handleFling', pressedValue)
     const moveablePlate = adjacentPlates.find(
       (p) => p.plate.index === pressedValue.plateIndex
     )
@@ -114,41 +114,56 @@ export default function Board({ levelInitData }: Props) {
         plateIndex: pressedValue.plateIndex,
         axis: moveablePlate.moveDirection.axis,
         toValue,
+        type: PlateNextMoveTypes.fling,
       }
     }
   }
 
   const handleBlockedFling = (pressedValue: PressedValue) => {
     'worklet'
-    // console.log('handleBlockedFling', pressedValue.plateIndex)
+    console.log('handleBlockedFling', pressedValue)
+    const directionValue = directionValues[pressedValue.direction]
+    nextMoveValue.value = {
+      plateIndex: pressedValue.plateIndex,
+      axis: directionValue.axis,
+      toValue: (PLATE_SIZE / 2) * directionValue.value,
+      type: PlateNextMoveTypes.blockedFling,
+    }
   }
 
   const handleBlock = (pressedValue: PressedValue) => {
     'worklet'
-    // console.log('handleBlock', pressedValue.plateIndex)
+    console.log('handleBlock', pressedValue)
+    const directionValue = directionValues[pressedValue.direction]
+    nextMoveValue.value = {
+      plateIndex: pressedValue.plateIndex,
+      axis: directionValue.axis,
+      toValue: MARGIN * directionValue.value,
+      type: PlateNextMoveTypes.blocked,
+    }
   }
 
-  const getPlateNextMoveType = (plateIndex: number) => {
+  const getPlateNextMoveType = (pressedValue: PressedValue) => {
     'worklet'
-    let plateNextMoveType = PlateNextMoveTypes.disabled
+    let plateNextMoveType = PlateNextMoveTypes.blocked
     const adjacentPlate = adjacentPlates.find(
-      (p) => p.plate.index === plateIndex
+      (p) => p.plate.index === pressedValue.plateIndex
     )
-    if (adjacentPlate) {
-      plateNextMoveType = isMoveable(plateIndex)
-        ? PlateNextMoveTypes.movable
-        : PlateNextMoveTypes.blankPlateNeighbor
+    if (adjacentPlate?.moveDirection.direction === pressedValue.direction) {
+      plateNextMoveType = isMoveable(pressedValue.plateIndex)
+        ? PlateNextMoveTypes.fling
+        : PlateNextMoveTypes.blockedFling
     }
     return plateNextMoveType
   }
 
   const handlePress = (pressedValue: PressedValue) => {
     'worklet'
-    const nextMoveType = getPlateNextMoveType(pressedValue.plateIndex)
+    const nextMoveType = getPlateNextMoveType(pressedValue)
     switch (nextMoveType) {
-      case PlateNextMoveTypes.movable:
+      case PlateNextMoveTypes.fling:
         return handleFling(pressedValue)
-      case PlateNextMoveTypes.blankPlateNeighbor:
+      case PlateNextMoveTypes.blockedFling:
         return handleBlockedFling(pressedValue)
       default:
         return handleBlock(pressedValue)
@@ -159,7 +174,7 @@ export default function Board({ levelInitData }: Props) {
     () => pressedValue.value,
     (pressedValue) => {
       if (pressedValue.plateIndex > -1) {
-        // console.log('pressedValue', pressedValue)
+        console.log('pressedValue', pressedValue)
         handlePress(pressedValue)
       }
     }
@@ -178,7 +193,7 @@ export default function Board({ levelInitData }: Props) {
                 isMoveable={isMoveablePlate}
                 pressedValue={pressedValue}
                 nextMoveValue={nextMoveValue}
-                getFlingAnimation={getFlingAnimation}
+                getAnimation={getAnimation}
               >
                 <Plate data={plate} isMoveable={isMoveablePlate} />
               </PressablePlate>

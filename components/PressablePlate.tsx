@@ -23,7 +23,7 @@ type Props = {
   children: React.ReactNode
   pressedValue: SharedValue<PressedValue>
   nextMoveValue: SharedValue<NextMoveValue>
-  getFlingAnimation: (toValue: number) => number
+  getAnimation: () => number
 }
 
 export default function PressablePlate({
@@ -32,7 +32,7 @@ export default function PressablePlate({
   children,
   pressedValue,
   nextMoveValue,
-  getFlingAnimation,
+  getAnimation,
 }: Props) {
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
@@ -73,11 +73,11 @@ export default function PressablePlate({
         nextMoveValue.plateIndex > -1 &&
         nextMoveValue.plateIndex === data.index
       ) {
-        // console.log('nextMoveValue', nextMoveValue)
+        console.log('nextMoveValue', nextMoveValue)
         if (nextMoveValue.axis === 'x') {
-          translateX.value = getFlingAnimation(nextMoveValue.toValue)
+          translateX.value = getAnimation()
         } else if (nextMoveValue.axis === 'y') {
-          translateY.value = getFlingAnimation(nextMoveValue.toValue)
+          translateY.value = getAnimation()
         }
       }
     }

@@ -25,9 +25,9 @@ export enum PlateId {
 }
 
 export enum PlateNextMoveTypes {
-  'disabled',
-  'movable',
-  'blankPlateNeighbor',
+  'blocked',
+  'blockedFling',
+  'fling',
 }
 
 export type Plate = {
@@ -79,6 +79,7 @@ export type NextMoveValue = {
   plateIndex: number
   axis: string
   toValue: number
+  type?: PlateNextMoveTypes
 }
 
 export type BoardGrid = Plate[][]
