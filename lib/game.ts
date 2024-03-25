@@ -18,25 +18,30 @@ import {
 } from '@/constants/Types'
 import { chunkArray, compareArrays } from '@/utils/utils'
 
-// export function getIsGameFinished(levelData: LevelData) {
-//   const winnerIndex = 7
-//   const obstacleGrid = createObstacleGrid(levelData)
-//   const boardGrid = createBoardGrid(levelData)
+export function getIsGameFinished(levelData: LevelData) {
+  const winnerIndex = 7
+  const centerIndex = 4
+  const obstacleGrid = createObstacleGrid(levelData)
+  const boardGrid = createBoardGrid(levelData)
+  const shipPlate = boardGrid.flat().find((i) => i.type === PlateType.ship)
 
-//   const shipIndex = boardGrid.flat().findIndex((i) => i.type === PlateType.ship)
-//   const shipXY = convertIndexToBoardXY(shipIndex)
-//   const adjacentPlatesXY = getAdjacentPlatesCoordinates(shipXY)
-  
-//   if (shipIndex === winnerIndex) {
-//     const isMoveable = getIsMoveable(
-//       plateObstacles,
-//       moveDirection,
-//       obstacleGrid,
-//       plate.index
-//     )
-//   }
-
-// }
+  if (shipPlate?.index === winnerIndex || shipPlate?.index === centerIndex) {
+    const plateObstacles = getPlateObstacles(obstacleGrid, shipPlate.index)
+    const moveDirection: MoveDirection = {
+      direction: TDirections.down,
+      axis: 'y',
+      value: 1,
+    }
+    if (shipPlate?.index === centerIndex) moveDirection.value = 2
+    return getIsMoveable(
+      plateObstacles,
+      moveDirection,
+      obstacleGrid,
+      shipPlate.index
+    )
+  }
+  return false
+}
 
 export function updateLevelData(
   levelData: LevelData,
@@ -147,16 +152,18 @@ function getIsMoveable(
         const obstacleInitPosition = obstacle[axis] as number
         const obstacleNextPosition = obstacleInitPosition + moves
 
-        let nextCell = null
+        if (obstacleNextPosition < 8 && obstacleNextPosition >= 0) {
+          let nextCell = null
 
-        if (axis === 'x') {
-          nextCell = obstacleGrid[obstacle.y][obstacleNextPosition]
-        } else if (axis === 'y') {
-          nextCell = obstacleGrid[obstacleNextPosition][obstacle.x]
-        }
+          if (axis === 'x') {
+            nextCell = obstacleGrid[obstacle.y][obstacleNextPosition]
+          } else if (axis === 'y') {
+            nextCell = obstacleGrid[obstacleNextPosition][obstacle.x]
+          }
 
-        if (nextCell?.plateIndex !== plateIdx && isMovable) {
-          isMovable = nextCell === null
+          if (nextCell?.plateIndex !== plateIdx && isMovable) {
+            isMovable = nextCell === null
+          }
         }
       }
     }

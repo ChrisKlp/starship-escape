@@ -13,6 +13,7 @@ import {
 } from '@/constants/gameConstants'
 import {
   getBlankPlateAdjacent,
+  getIsGameFinished,
   sortLevelData,
   updateLevelData,
 } from '@/lib/game'
@@ -50,6 +51,10 @@ export default function Board({ levelInitData }: Props) {
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
   const adjacentPlates = getBlankPlateAdjacent(levelData)
+  const isGameFinished = getIsGameFinished(levelData)
+
+  console.log(isGameFinished)
+
   const moveablePlatesIndexes = adjacentPlates
     .filter((p) => p.isMoveable)
     .map((i) => i.plate.index)
@@ -66,7 +71,7 @@ export default function Board({ levelInitData }: Props) {
     )
     if (moveablePlate) {
       const newLevelData = updateLevelData(levelData, moveablePlate)
-      // runOnJS(setLevelData)(newLevelData)
+      runOnJS(setLevelData)(newLevelData)
     }
   }
 

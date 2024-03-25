@@ -97,7 +97,7 @@ export default function PressablePlate({
 
   return data.type !== PlateType.blank ? (
     <GestureDetector
-      gesture={Gesture.Exclusive(flingDown, flingUp, flingLeft, flingRight)}
+      gesture={Gesture.Race(flingDown, flingUp, flingLeft, flingRight)}
     >
       <Animated.View style={animatedStyle}>{children}</Animated.View>
     </GestureDetector>
