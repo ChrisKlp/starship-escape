@@ -11,12 +11,7 @@ import {
   PLATE_SIZE,
   directionValues,
 } from '@/constants/gameConstants'
-import {
-  getBlankPlateAdjacent,
-  getIsGameFinished,
-  sortLevelData,
-  updateLevelData,
-} from '@/lib/game'
+import { getGameStatus, sortLevelData, updateLevelData } from '@/lib/game'
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import {
@@ -26,9 +21,9 @@ import {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
+import Obstacle from './Obstacle'
 import Plate from './Plate'
 import PressablePlate from './PressablePlate'
-import Obstacle from './Obstacle'
 
 type Props = {
   levelInitData: LevelData
@@ -50,25 +45,22 @@ export default function Board({ levelInitData }: Props) {
   const pressedValue = useSharedValue<PressedValue>(initPressedValue)
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
-  const adjacentPlates = getBlankPlateAdjacent(levelData)
-  const isGameFinished = getIsGameFinished(levelData)
-
-  console.log(isGameFinished)
-
-  const moveablePlatesIndexes = adjacentPlates
-    .filter((p) => p.isMoveable)
-    .map((i) => i.plate.index)
+  const { isGameFinished, moveablePlatesIndexes, readyToMovePlates } =
+    getGameStatus(levelData)
 
   const isMoveable = (index: number) => {
     'worklet'
     return moveablePlatesIndexes.includes(index)
   }
 
+  const findPlate = (plateIndex: number) => {
+    'worklet'
+    return readyToMovePlates.find((p) => p.plate.index === plateIndex)
+  }
+
   const onFlingAnimationEnd = (plateIndex: number) => {
     'worklet'
-    const moveablePlate = adjacentPlates.find(
-      (p) => p.plate.index === plateIndex
-    )
+    const moveablePlate = findPlate(plateIndex)
     if (moveablePlate) {
       const newLevelData = updateLevelData(levelData, moveablePlate)
       runOnJS(setLevelData)(newLevelData)
@@ -110,9 +102,7 @@ export default function Board({ levelInitData }: Props) {
 
   const handleFling = (pressedValue: PressedValue) => {
     'worklet'
-    const moveablePlate = adjacentPlates.find(
-      (p) => p.plate.index === pressedValue.plateIndex
-    )
+    const moveablePlate = findPlate(pressedValue.plateIndex)
     if (moveablePlate?.moveDirection.direction === pressedValue.direction) {
       const toValue = moveablePlate.moveDirection.value * PLATE_SIZE
       nextMoveValue.value = {
@@ -149,9 +139,7 @@ export default function Board({ levelInitData }: Props) {
   const getPlateNextMoveType = (pressedValue: PressedValue) => {
     'worklet'
     let plateNextMoveType = PlateNextMoveTypes.blocked
-    const adjacentPlate = adjacentPlates.find(
-      (p) => p.plate.index === pressedValue.plateIndex
-    )
+    const adjacentPlate = findPlate(pressedValue.plateIndex)
     if (adjacentPlate?.moveDirection.direction === pressedValue.direction) {
       plateNextMoveType = isMoveable(pressedValue.plateIndex)
         ? PlateNextMoveTypes.fling

@@ -18,29 +18,21 @@ import {
 } from '@/constants/Types'
 import { chunkArray, compareArrays } from '@/utils/utils'
 
-export function getIsGameFinished(levelData: LevelData) {
-  const winnerIndex = 7
-  const centerIndex = 4
-  const obstacleGrid = createObstacleGrid(levelData)
+export function getGameStatus(levelData: LevelData) {
   const boardGrid = createBoardGrid(levelData)
-  const shipPlate = boardGrid.flat().find((i) => i.type === PlateType.ship)
+  const obstacleGrid = createObstacleGrid(levelData)
 
-  if (shipPlate?.index === winnerIndex || shipPlate?.index === centerIndex) {
-    const plateObstacles = getPlateObstacles(obstacleGrid, shipPlate.index)
-    const moveDirection: MoveDirection = {
-      direction: TDirections.down,
-      axis: 'y',
-      value: 1,
-    }
-    if (shipPlate?.index === centerIndex) moveDirection.value = 2
-    return getIsMoveable(
-      plateObstacles,
-      moveDirection,
-      obstacleGrid,
-      shipPlate.index
-    )
+  const isGameFinished = getIsGameFinished(boardGrid, obstacleGrid)
+  const readyToMovePlates = getBlankPlateAdjacent(boardGrid, obstacleGrid)
+  const moveablePlatesIndexes = readyToMovePlates
+    .filter((p) => p.isMoveable)
+    .map((i) => i.plate.index)
+
+  return {
+    isGameFinished,
+    readyToMovePlates,
+    moveablePlatesIndexes,
   }
-  return false
 }
 
 export function updateLevelData(
@@ -74,10 +66,33 @@ export function updateLevelData(
   return newLevelData
 }
 
-export function getBlankPlateAdjacent(levelData: LevelData): MoveablePlate[] {
-  const obstacleGrid = createObstacleGrid(levelData)
-  const boardGrid = createBoardGrid(levelData)
+function getIsGameFinished(boardGrid: BoardGrid, obstacleGrid: ObstacleGrid) {
+  const winnerIndex = 7
+  const centerIndex = 4
+  const shipPlate = boardGrid.flat().find((i) => i.type === PlateType.ship)
 
+  if (shipPlate?.index === winnerIndex || shipPlate?.index === centerIndex) {
+    const plateObstacles = getPlateObstacles(obstacleGrid, shipPlate.index)
+    const moveDirection: MoveDirection = {
+      direction: TDirections.down,
+      axis: 'y',
+      value: 1,
+    }
+    if (shipPlate?.index === centerIndex) moveDirection.value = 2
+    return getIsMoveable(
+      plateObstacles,
+      moveDirection,
+      obstacleGrid,
+      shipPlate.index
+    )
+  }
+  return false
+}
+
+function getBlankPlateAdjacent(
+  boardGrid: BoardGrid,
+  obstacleGrid: ObstacleGrid
+): MoveablePlate[] {
   const blankIdx = getBlankPlateIdx(boardGrid)
   const blankXY = convertIndexToBoardXY(blankIdx)
   const adjacentPlatesXY = getAdjacentPlatesCoordinates(blankXY)
