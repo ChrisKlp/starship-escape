@@ -8,7 +8,6 @@ import {
 import {
   BOARD_SIZE,
   MARGIN,
-  OBSTACLE_SIZE,
   PLATE_SIZE,
   directionValues,
 } from '@/constants/gameConstants'
@@ -28,6 +27,7 @@ import {
 } from 'react-native-reanimated'
 import Plate from './Plate'
 import PressablePlate from './PressablePlate'
+import Obstacle from './Obstacle'
 
 type Props = {
   levelInitData: LevelData
@@ -60,12 +60,13 @@ export default function Board({ levelInitData }: Props) {
   }
 
   const onFlingAnimationEnd = (plateIndex: number) => {
+    'worklet'
     const moveablePlate = adjacentPlates.find(
       (p) => p.plate.index === plateIndex
     )
     if (moveablePlate) {
       const newLevelData = updateLevelData(levelData, moveablePlate)
-      setLevelData(newLevelData)
+      // runOnJS(setLevelData)(newLevelData)
     }
   }
 
@@ -83,7 +84,7 @@ export default function Board({ levelInitData }: Props) {
     'worklet'
     return withTiming(toValue, { duration: 200 }, (isFinished) => {
       if (isFinished) {
-        runOnJS(onFlingAnimationEnd)(nextMoveValue.value.plateIndex)
+        onFlingAnimationEnd(nextMoveValue.value.plateIndex)
         pressedValue.value = initPressedValue
         nextMoveValue.value = initNextMoveValue
       }
@@ -104,7 +105,6 @@ export default function Board({ levelInitData }: Props) {
 
   const handleFling = (pressedValue: PressedValue) => {
     'worklet'
-    console.log('handleFling', pressedValue)
     const moveablePlate = adjacentPlates.find(
       (p) => p.plate.index === pressedValue.plateIndex
     )
@@ -121,19 +121,17 @@ export default function Board({ levelInitData }: Props) {
 
   const handleBlockedFling = (pressedValue: PressedValue) => {
     'worklet'
-    console.log('handleBlockedFling', pressedValue)
     const directionValue = directionValues[pressedValue.direction]
     nextMoveValue.value = {
       plateIndex: pressedValue.plateIndex,
       axis: directionValue.axis,
-      toValue: (PLATE_SIZE / 2) * directionValue.value,
+      toValue: (PLATE_SIZE / 3) * directionValue.value,
       type: PlateNextMoveTypes.blockedFling,
     }
   }
 
   const handleBlock = (pressedValue: PressedValue) => {
     'worklet'
-    console.log('handleBlock', pressedValue)
     const directionValue = directionValues[pressedValue.direction]
     nextMoveValue.value = {
       plateIndex: pressedValue.plateIndex,
@@ -174,7 +172,6 @@ export default function Board({ levelInitData }: Props) {
     () => pressedValue.value,
     (pressedValue) => {
       if (pressedValue.plateIndex > -1) {
-        console.log('pressedValue', pressedValue)
         handlePress(pressedValue)
       }
     }
@@ -200,28 +197,22 @@ export default function Board({ levelInitData }: Props) {
             )
           })}
         </View>
+        <View style={[styles.board, styles.absoluteBoard]} pointerEvents="none">
+          {levelData.map((plate) => {
+            return (
+              <Obstacle
+                key={`${plate.id}-${plate.index}`}
+                data={plate}
+                nextMoveValue={nextMoveValue}
+                getAnimation={getAnimation}
+              ></Obstacle>
+            )
+          })}
+        </View>
       </View>
     </View>
   )
 }
-
-// function Obstacle({ data }: { data: PlateInitData }) {
-//   const dataId = data.id as keyof typeof plateImages
-//   const imageSource = plateImages[dataId]
-//   const rotate = `${data.styles.rotate || 0}deg`
-//   return (
-//     <View style={styles.plateContainer}>
-//       {data.type !== PlateType.blank && (
-//         <View pointerEvents="box-none" style={styles.plateObstaclesWrapper}>
-//           <Image
-//             style={[styles.plateImage, { transform: [{ rotate: rotate }] }]}
-//             source={imageSource}
-//           />
-//         </View>
-//       )}
-//     </View>
-//   )
-// }
 
 const borderRadius = 8
 
@@ -250,34 +241,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: MARGIN / 2,
     left: MARGIN / 2,
-    opacity: 0,
-  },
-  plateContainer: {
-    width: PLATE_SIZE,
-    height: PLATE_SIZE,
-  },
-  plateObstaclesWrapper: {
-    position: 'absolute',
-    left: -OBSTACLE_SIZE,
-    top: -OBSTACLE_SIZE,
-    right: -OBSTACLE_SIZE,
-    bottom: -OBSTACLE_SIZE,
-  },
-  plateImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    transform: [{ scale: 1 }],
-  },
-  plateWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: MARGIN / 2,
-    backgroundColor: '#1e386c',
-    borderRadius: borderRadius / 2,
-  },
-  blankPlate: {
-    backgroundColor: '',
   },
 })

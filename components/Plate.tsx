@@ -3,7 +3,7 @@ import { MARGIN, PLATE_SIZE } from '@/constants/gameConstants'
 import { StyleSheet, View } from 'react-native'
 
 type Props = {
-  data?: PlateInitData
+  data: PlateInitData
   isMoveable?: boolean
 }
 

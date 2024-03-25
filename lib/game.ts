@@ -18,10 +18,31 @@ import {
 } from '@/constants/Types'
 import { chunkArray, compareArrays } from '@/utils/utils'
 
+// export function getIsGameFinished(levelData: LevelData) {
+//   const winnerIndex = 7
+//   const obstacleGrid = createObstacleGrid(levelData)
+//   const boardGrid = createBoardGrid(levelData)
+
+//   const shipIndex = boardGrid.flat().findIndex((i) => i.type === PlateType.ship)
+//   const shipXY = convertIndexToBoardXY(shipIndex)
+//   const adjacentPlatesXY = getAdjacentPlatesCoordinates(shipXY)
+  
+//   if (shipIndex === winnerIndex) {
+//     const isMoveable = getIsMoveable(
+//       plateObstacles,
+//       moveDirection,
+//       obstacleGrid,
+//       plate.index
+//     )
+//   }
+
+// }
+
 export function updateLevelData(
   levelData: LevelData,
   moveablePlate: MoveablePlate
 ) {
+  'worklet'
   const { plate, moveDirection } = moveablePlate
   const moveGridValue = 2
   const newPlate = { ...levelData[plate.index] }

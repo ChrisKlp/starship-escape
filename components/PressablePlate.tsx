@@ -73,7 +73,6 @@ export default function PressablePlate({
         nextMoveValue.plateIndex > -1 &&
         nextMoveValue.plateIndex === data.index
       ) {
-        console.log('nextMoveValue', nextMoveValue)
         if (nextMoveValue.axis === 'x') {
           translateX.value = getAnimation()
         } else if (nextMoveValue.axis === 'y') {
