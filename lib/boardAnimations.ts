@@ -29,18 +29,22 @@ export function getFlingAnimation(toValue: number, callback: () => void) {
     toValue,
     { duration: 200, reduceMotion: ReduceMotion.System },
     (isFinished) => {
-      if (isFinished) {
-        callback()
-      }
+      if (isFinished) callback()
     }
   )
 }
 
-export function getEscapeAnimation(toValue: number) {
+export function getEscapeAnimation(toValue: number, callback: () => void) {
   'worklet'
-  return withTiming(toValue, {
-    duration: 1000,
-    easing: Easing.in(Easing.exp),
-    reduceMotion: ReduceMotion.System,
-  })
+  return withTiming(
+    toValue,
+    {
+      duration: 1000,
+      easing: Easing.in(Easing.exp),
+      reduceMotion: ReduceMotion.System,
+    },
+    (isFinished) => {
+      if (isFinished) callback()
+    }
+  )
 }

@@ -22,6 +22,7 @@ import { getGameStatus, sortLevelData, updateLevelData } from '@/lib/game'
 import { useEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import {
+  SharedValue,
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
@@ -32,6 +33,7 @@ import PressablePlate from './PressablePlate'
 
 type Props = {
   levelInitData: LevelData
+  setEndGame: (isFinished: boolean) => void
 }
 
 export const initPressedValue = {
@@ -45,7 +47,7 @@ export const initNextMoveValue = {
   toValue: 0,
 }
 
-export default function Board({ levelInitData }: Props) {
+export default function Board({ levelInitData, setEndGame }: Props) {
   const [levelData, setLevelData] = useState(sortLevelData(levelInitData))
   const pressedValue = useSharedValue<PressedValue>(initPressedValue)
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
@@ -69,6 +71,11 @@ export default function Board({ levelInitData }: Props) {
     }
   }
 
+  const onEscapeAnimationEnd = () => {
+    'worklet'
+    runOnJS(setEndGame)(true)
+  }
+
   const getAnimation = () => {
     'worklet'
     switch (nextMoveValue.value.type) {
@@ -79,7 +86,10 @@ export default function Board({ levelInitData }: Props) {
       case PlateNextMoveTypes.blockedFling:
         return getBlockedFlingAnimation(nextMoveValue.value.toValue)
       case PlateNextMoveTypes.escape:
-        return getEscapeAnimation(nextMoveValue.value.toValue)
+        return getEscapeAnimation(
+          nextMoveValue.value.toValue,
+          onEscapeAnimationEnd
+        )
       default:
         return getBlockedAnimation(nextMoveValue.value.toValue)
     }
