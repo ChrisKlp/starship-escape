@@ -12,17 +12,19 @@ import {
   PLATE_SIZE,
   directionValues,
 } from '@/constants/gameConstants'
+import {
+  getBlockedAnimation,
+  getBlockedFlingAnimation,
+  getEscapeAnimation,
+  getFlingAnimation,
+} from '@/lib/boardAnimations'
 import { getGameStatus, sortLevelData, updateLevelData } from '@/lib/game'
 import { useEffect, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import {
-  Easing,
-  ReduceMotion,
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
-  withRepeat,
-  withTiming,
 } from 'react-native-reanimated'
 import Obstacle from './Obstacle'
 import Plate from './Plate'
@@ -51,11 +53,6 @@ export default function Board({ levelInitData }: Props) {
   const { isGameFinished, moveablePlatesIndexes, readyToMovePlates } =
     getGameStatus(levelData)
 
-  const isMoveable = (index: number) => {
-    'worklet'
-    return moveablePlatesIndexes.includes(index)
-  }
-
   const findPlate = (plateIndex: number) => {
     'worklet'
     return readyToMovePlates.find((p) => p.plate.index === plateIndex)
@@ -67,44 +64,18 @@ export default function Board({ levelInitData }: Props) {
     if (moveablePlate) {
       const newLevelData = updateLevelData(levelData, moveablePlate)
       runOnJS(setLevelData)(newLevelData)
+      pressedValue.value = initPressedValue
+      nextMoveValue.value = initNextMoveValue
     }
-  }
-
-  const getBlockedAnimation = (toValue: number) => {
-    'worklet'
-    return withRepeat(withTiming(toValue, { duration: 100 }), 2, true)
-  }
-
-  const getBlockedFlingAnimation = (toValue: number) => {
-    'worklet'
-    return withRepeat(withTiming(toValue, { duration: 100 }), 2, true)
-  }
-
-  const getFlingAnimation = (toValue: number) => {
-    'worklet'
-    return withTiming(toValue, { duration: 200 }, (isFinished) => {
-      if (isFinished) {
-        onFlingAnimationEnd(nextMoveValue.value.plateIndex)
-        pressedValue.value = initPressedValue
-        nextMoveValue.value = initNextMoveValue
-      }
-    })
-  }
-
-  const getEscapeAnimation = (toValue: number) => {
-    'worklet'
-    return withTiming(toValue, {
-      duration: 1000,
-      easing: Easing.in(Easing.exp),
-      reduceMotion: ReduceMotion.System,
-    })
   }
 
   const getAnimation = () => {
     'worklet'
     switch (nextMoveValue.value.type) {
       case PlateNextMoveTypes.fling:
-        return getFlingAnimation(nextMoveValue.value.toValue)
+        return getFlingAnimation(nextMoveValue.value.toValue, () =>
+          onFlingAnimationEnd(nextMoveValue.value.plateIndex)
+        )
       case PlateNextMoveTypes.blockedFling:
         return getBlockedFlingAnimation(nextMoveValue.value.toValue)
       case PlateNextMoveTypes.escape:
@@ -155,7 +126,8 @@ export default function Board({ levelInitData }: Props) {
     let plateNextMoveType = PlateNextMoveTypes.blocked
     const adjacentPlate = findPlate(pressedValue.plateIndex)
     if (adjacentPlate?.moveDirection.direction === pressedValue.direction) {
-      plateNextMoveType = isMoveable(pressedValue.plateIndex)
+      const isMoveable = moveablePlatesIndexes.includes(pressedValue.plateIndex)
+      plateNextMoveType = isMoveable
         ? PlateNextMoveTypes.fling
         : PlateNextMoveTypes.blockedFling
     }
