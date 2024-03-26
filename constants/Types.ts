@@ -28,6 +28,7 @@ export enum PlateNextMoveTypes {
   'blocked',
   'blockedFling',
   'fling',
+  'escape',
 }
 
 export type Plate = {

@@ -1,6 +1,7 @@
 import {
   NextMoveValue,
   PlateInitData,
+  PlateNextMoveTypes,
   PlateType,
   PressedValue,
   TDirections,
@@ -71,7 +72,8 @@ export default function PressablePlate({
     (nextMoveValue) => {
       if (
         nextMoveValue.plateIndex > -1 &&
-        nextMoveValue.plateIndex === data.index
+        nextMoveValue.plateIndex === data.index &&
+        nextMoveValue.type !== PlateNextMoveTypes.escape
       ) {
         if (nextMoveValue.axis === 'x') {
           translateX.value = getAnimation()

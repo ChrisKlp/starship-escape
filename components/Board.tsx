@@ -2,6 +2,7 @@ import {
   LevelData,
   NextMoveValue,
   PlateNextMoveTypes,
+  PlateType,
   PressedValue,
   TDirections,
 } from '@/constants/Types'
@@ -12,9 +13,11 @@ import {
   directionValues,
 } from '@/constants/gameConstants'
 import { getGameStatus, sortLevelData, updateLevelData } from '@/lib/game'
-import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import {
+  Easing,
+  ReduceMotion,
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
@@ -88,6 +91,15 @@ export default function Board({ levelInitData }: Props) {
     })
   }
 
+  const getEscapeAnimation = (toValue: number) => {
+    'worklet'
+    return withTiming(toValue, {
+      duration: 1000,
+      easing: Easing.in(Easing.exp),
+      reduceMotion: ReduceMotion.System,
+    })
+  }
+
   const getAnimation = () => {
     'worklet'
     switch (nextMoveValue.value.type) {
@@ -95,6 +107,8 @@ export default function Board({ levelInitData }: Props) {
         return getFlingAnimation(nextMoveValue.value.toValue)
       case PlateNextMoveTypes.blockedFling:
         return getBlockedFlingAnimation(nextMoveValue.value.toValue)
+      case PlateNextMoveTypes.escape:
+        return getEscapeAnimation(nextMoveValue.value.toValue)
       default:
         return getBlockedAnimation(nextMoveValue.value.toValue)
     }
@@ -161,21 +175,37 @@ export default function Board({ levelInitData }: Props) {
     }
   }
 
+  const handleEndGame = () => {
+    console.log('end game')
+    const shipIndex = levelData.findIndex((p) => p.type === PlateType.ship)
+    nextMoveValue.value = {
+      plateIndex: shipIndex,
+      axis: 'y',
+      toValue: Dimensions.get('window').height,
+      type: PlateNextMoveTypes.escape,
+    }
+  }
+
   useAnimatedReaction(
     () => pressedValue.value,
     (pressedValue) => {
-      if (pressedValue.plateIndex > -1) {
+      if (pressedValue.plateIndex > -1 && !isGameFinished) {
         handlePress(pressedValue)
       }
     }
   )
+
+  useEffect(() => {
+    if (isGameFinished) handleEndGame()
+  }, [isGameFinished])
 
   return (
     <View style={styles.container}>
       <View style={styles.wrapper}>
         <View style={[styles.board]}>
           {levelData.map((plate) => {
-            const isMoveablePlate = moveablePlatesIndexes.includes(plate.index)
+            const isMoveablePlate =
+              moveablePlatesIndexes.includes(plate.index) && !isGameFinished
             return (
               <PressablePlate
                 key={`${plate.id}-${plate.index}`}
