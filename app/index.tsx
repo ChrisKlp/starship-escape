@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const level = new Level(getGameLevel(1))
+const level = new Level(getGameLevel(4))
 
 export default function GamePage() {
   const [isLevelFinished, setIsLevelFinished] = useState(false)
