@@ -1,8 +1,11 @@
+import Obstacle from '@/components/Obstacle'
+import Plate from '@/components/Plate'
 import {
-  LevelData,
+  MoveablePlate,
   NextMoveValue,
   PlateNextMoveTypes,
   PlateType,
+  PlatesInitData,
   PressedValue,
   TDirections,
 } from '@/constants/Types'
@@ -12,28 +15,27 @@ import {
   PLATE_SIZE,
   directionValues,
 } from '@/constants/gameConstants'
+import Level from '@/lib/Level'
 import {
   getBlockedAnimation,
   getBlockedFlingAnimation,
   getEscapeAnimation,
   getFlingAnimation,
 } from '@/lib/boardAnimations'
-import { getGameStatus, sortLevelData, updateLevelData } from '@/lib/game'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import {
-  SharedValue,
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
 } from 'react-native-reanimated'
-import Obstacle from './Obstacle'
-import Plate from './Plate'
 import PressablePlate from './PressablePlate'
 
 type Props = {
-  levelInitData: LevelData
+  level: Level
+  platesData: PlatesInitData
   setEndGame: (isFinished: boolean) => void
+  updateGame: (moveablePlate: MoveablePlate) => void
 }
 
 export const initPressedValue = {
@@ -47,13 +49,17 @@ export const initNextMoveValue = {
   toValue: 0,
 }
 
-export default function Board({ levelInitData, setEndGame }: Props) {
-  const [levelData, setLevelData] = useState(sortLevelData(levelInitData))
+export default function Board({
+  level,
+  platesData,
+  setEndGame,
+  updateGame,
+}: Props) {
   const pressedValue = useSharedValue<PressedValue>(initPressedValue)
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
-  const { isGameFinished, moveablePlatesIndexes, readyToMovePlates } =
-    getGameStatus(levelData)
+  const { isGameFinished, readyToMoveIndexes, readyToMovePlates } =
+    level.getGameStatus()
 
   const findPlate = (plateIndex: number) => {
     'worklet'
@@ -64,8 +70,7 @@ export default function Board({ levelInitData, setEndGame }: Props) {
     'worklet'
     const moveablePlate = findPlate(plateIndex)
     if (moveablePlate) {
-      const newLevelData = updateLevelData(levelData, moveablePlate)
-      runOnJS(setLevelData)(newLevelData)
+      runOnJS(updateGame)(moveablePlate)
       pressedValue.value = initPressedValue
       nextMoveValue.value = initNextMoveValue
     }
@@ -136,7 +141,7 @@ export default function Board({ levelInitData, setEndGame }: Props) {
     let plateNextMoveType = PlateNextMoveTypes.blocked
     const adjacentPlate = findPlate(pressedValue.plateIndex)
     if (adjacentPlate?.moveDirection.direction === pressedValue.direction) {
-      const isMoveable = moveablePlatesIndexes.includes(pressedValue.plateIndex)
+      const isMoveable = readyToMoveIndexes.includes(pressedValue.plateIndex)
       plateNextMoveType = isMoveable
         ? PlateNextMoveTypes.fling
         : PlateNextMoveTypes.blockedFling
@@ -159,7 +164,9 @@ export default function Board({ levelInitData, setEndGame }: Props) {
 
   const handleEndGame = () => {
     console.log('end game')
-    const shipIndex = levelData.findIndex((p) => p.type === PlateType.ship)
+    const shipIndex = platesData.findIndex(
+      (p) => p.plate.type === PlateType.ship
+    )
     nextMoveValue.value = {
       plateIndex: shipIndex,
       axis: 'y',
@@ -185,29 +192,29 @@ export default function Board({ levelInitData, setEndGame }: Props) {
     <View style={styles.container}>
       <View style={styles.wrapper}>
         <View style={[styles.board]}>
-          {levelData.map((plate) => {
+          {platesData.map((data) => {
             const isMoveablePlate =
-              moveablePlatesIndexes.includes(plate.index) && !isGameFinished
+              readyToMoveIndexes.includes(data.index) && !isGameFinished
             return (
               <PressablePlate
-                key={`${plate.id}-${plate.index}`}
-                data={plate}
+                key={`${data.plate.id}-${data.index}`}
+                data={data}
                 isMoveable={isMoveablePlate}
                 pressedValue={pressedValue}
                 nextMoveValue={nextMoveValue}
                 getAnimation={getAnimation}
               >
-                <Plate data={plate} isMoveable={isMoveablePlate} />
+                <Plate data={data} isMoveable={isMoveablePlate} />
               </PressablePlate>
             )
           })}
         </View>
         <View style={[styles.board, styles.absoluteBoard]} pointerEvents="none">
-          {levelData.map((plate) => {
+          {platesData.map((data) => {
             return (
               <Obstacle
-                key={`${plate.id}-${plate.index}`}
-                data={plate}
+                key={`${data.plate.id}-${data.index}`}
+                data={data}
                 nextMoveValue={nextMoveValue}
                 getAnimation={getAnimation}
               ></Obstacle>

@@ -2,6 +2,8 @@ import { Dimensions } from 'react-native'
 
 export const BOARD_GRID_SIZE = 3
 export const GAME_GRID_SIZE = 8
+export const OBSTACLE_GRID_SIZE = 4
+export const MOVE_GRID_VALUE = 2
 
 export const OBSTACLE_SIZE = Math.round(
   Dimensions.get('window').width / GAME_GRID_SIZE

@@ -31,7 +31,15 @@ export enum PlateNextMoveTypes {
   'escape',
 }
 
-export type Plate = {
+export enum LevelDifficulty {
+  'starter',
+  'junior',
+  'expert',
+  'master',
+  'wizard',
+}
+
+export type BoardGridItem = {
   type: PlateType
   index: number
 }
@@ -56,16 +64,27 @@ export type Cell = {
 
 export type ObstacleInitData = number[][]
 
-export type PlateInitData = {
+export type PlateModel = {
   id: PlateId
-  index: number
   type: PlateType
   obstacles: ObstacleInitData
-  styles: { [key: string]: number }
+}
+
+export type PlateInitData = {
+  index: number
+  plate: PlateModel
+  rotate: number
+}
+
+export type LevelData = {
+  id: string
+  name: string
+  difficulty: LevelDifficulty
+  data: PlateInitData[]
 }
 
 export type MoveablePlate = {
-  plate: Plate
+  plate: BoardGridItem
   moveDirection: MoveDirection
   plateObstacles: PlateObstacles
   isMoveable: boolean
@@ -83,9 +102,9 @@ export type NextMoveValue = {
   type?: PlateNextMoveTypes
 }
 
-export type BoardGrid = Plate[][]
+export type BoardGrid = BoardGridItem[][]
 export type PlateObstacle = Cell | null
 export type PlateObstacles = PlateObstacle[]
-export type ObstacleGrid = PlateObstacles[]
+export type ObstacleGrid = PlateObstacle[][]
 export type MoveablePlates = MoveablePlate[]
-export type LevelData = PlateInitData[]
+export type PlatesInitData = PlateInitData[]

@@ -1,9 +1,11 @@
 import Board from '@/components/Board'
+import { MoveablePlate } from '@/constants/Types'
 import { BOARD_SIZE, MARGIN, PLATE_SIZE } from '@/constants/gameConstants'
-import { levelInitData } from '@/lib/gameLevels'
+import Level from '@/lib/Level'
+import { getGameLevel } from '@/lib/gameLevels'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, {
   useAnimatedStyle,
@@ -12,8 +14,11 @@ import Animated, {
 } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+const level = new Level(getGameLevel(1))
+
 export default function GamePage() {
   const [isLevelFinished, setIsLevelFinished] = useState(false)
+  const [platesData, setPlatesData] = useState(level.platesData)
   const opacity = useSharedValue(1)
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -22,6 +27,11 @@ export default function GamePage() {
 
   const setEndGame = (isFinished: boolean) => {
     setIsLevelFinished(isFinished)
+  }
+
+  const updateGame = (moveablePlate: MoveablePlate) => {
+    const updatedLevelData = level.getNewPlatesData(moveablePlate)
+    setPlatesData(updatedLevelData)
   }
 
   useEffect(() => {
@@ -38,7 +48,12 @@ export default function GamePage() {
       <GestureHandlerRootView style={styles.container}>
         <SafeAreaView style={styles.container}>
           <Animated.View style={[styles.container, animatedStyle]}>
-            <Board levelInitData={levelInitData} setEndGame={setEndGame} />
+            <Board
+              level={level}
+              platesData={platesData}
+              setEndGame={setEndGame}
+              updateGame={updateGame}
+            />
           </Animated.View>
         </SafeAreaView>
       </GestureHandlerRootView>

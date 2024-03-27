@@ -97,7 +97,7 @@ export default function PressablePlate({
     }
   })
 
-  return data.type !== PlateType.blank ? (
+  return data.plate.type !== PlateType.blank ? (
     <GestureDetector
       gesture={Gesture.Race(flingDown, flingUp, flingLeft, flingRight)}
     >

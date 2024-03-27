@@ -34,9 +34,9 @@ export default function Obstacle({ data, nextMoveValue, getAnimation }: Props) {
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
 
-  const dataId = data.id as keyof typeof imageList
+  const dataId = data.plate.id as keyof typeof imageList
   const imageSource = imageList[dataId]
-  const rotate = `${data.styles.rotate || 0}deg`
+  const rotate = `${data.rotate * 90 || 0}deg`
 
   useAnimatedReaction(
     () => nextMoveValue.value,
@@ -69,7 +69,7 @@ export default function Obstacle({ data, nextMoveValue, getAnimation }: Props) {
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      {data.type !== PlateType.blank && (
+      {data.plate.type !== PlateType.blank && (
         <View style={styles.wrapper}>
           <Image
             style={[styles.plateImage, { transform: [{ rotate: rotate }] }]}

@@ -13,7 +13,7 @@ export default function Plate({ data, isMoveable }: Props) {
       <View
         style={[
           styles.wrapper,
-          data?.type === PlateType.blank && styles.blank,
+          data.plate.type === PlateType.blank && styles.blank,
           isMoveable && styles.moveable,
         ]}
       />
