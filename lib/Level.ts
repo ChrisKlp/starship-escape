@@ -21,19 +21,13 @@ import {
 import { chunkArray, compareArrays, convertIndexToBoardXY } from '@/utils/utils'
 
 export default class Level {
-  public id: string = 'level1'
-  public levelName: string = 'Level'
-  public levelDifficulty: LevelDifficulty = LevelDifficulty.junior
-  public platesData: PlatesInitData = []
+  private platesData: PlatesInitData = []
   private boardGrid: BoardGrid = []
   private obstacleGrid: ObstacleGrid = []
   private blankPlateIndex: number = -1
   private isGameFinished: boolean = false
 
   constructor(levelInitData: LevelData) {
-    this.id = levelInitData.id
-    this.levelName = levelInitData.name
-    this.levelDifficulty = levelInitData.difficulty
     this.platesData = levelInitData.data
     this.updateData()
   }
@@ -50,6 +44,10 @@ export default class Level {
     return this.isGameFinished
   }
 
+  getPlatesData() {
+    return this.platesData
+  }
+
   getGameStatus() {
     const readyToMovePlates = this.getReadyToMovePlates()
     const readyToMoveIndexes = readyToMovePlates
@@ -63,16 +61,16 @@ export default class Level {
     }
   }
 
-  getNewPlatesData(moveablePlate: MoveablePlate) {
-    const newPlates = this.getUpdatedPlatesData(moveablePlate)
+  getMovedPlatesData(movedPlate: MoveablePlate) {
+    const newPlates = this.getUpdatedPlatesData(movedPlate)
     this.platesData = newPlates
     this.updateData()
-    return newPlates
+    return this.platesData
   }
 
-  private getUpdatedPlatesData(moveablePlate: MoveablePlate): PlatesInitData {
+  private getUpdatedPlatesData(movedPlate: MoveablePlate): PlatesInitData {
     const platesData = this.platesData
-    const { plate, moveDirection } = moveablePlate
+    const { plate, moveDirection } = movedPlate
     const currentPlate = platesData[plate.index]
     const currentBlankIndex = platesData.findIndex(
       (data) => data.plate.type === PlateType.blank
@@ -160,13 +158,12 @@ export default class Level {
     moveDirection: MoveDirection,
     plateIdx: number
   ) {
-    let isMovable = true
-    plateObstacles.forEach((obstacle) => {
+    return plateObstacles.every((obstacle) => {
       if (obstacle) {
         let moves = 0
         const axis = moveDirection.axis as keyof Cell
         const isSubtraction = moveDirection.value < 0
-        const moveGridValue = moveDirection.value * 2
+        const moveGridValue = moveDirection.value * MOVE_GRID_VALUE
 
         while (isSubtraction ? moves > moveGridValue : moves < moveGridValue) {
           isSubtraction ? moves-- : moves++
@@ -174,7 +171,7 @@ export default class Level {
           const obstacleNextPosition = obstacleInitPosition + moves
 
           if (obstacleNextPosition < 8 && obstacleNextPosition >= 0) {
-            let nextCell = null
+            let nextCell: Cell | null = null
 
             if (axis === 'x') {
               nextCell = this.obstacleGrid[obstacle.y][obstacleNextPosition]
@@ -182,14 +179,14 @@ export default class Level {
               nextCell = this.obstacleGrid[obstacleNextPosition][obstacle.x]
             }
 
-            if (nextCell?.plateIndex !== plateIdx && isMovable) {
-              isMovable = nextCell === null
+            if (nextCell !== null && nextCell.plateIndex !== plateIdx) {
+              return false
             }
           }
         }
       }
+      return true
     })
-    return isMovable
   }
 
   private updateBoardGrid() {
@@ -270,7 +267,7 @@ export default class Level {
   }
 
   private sortPlates() {
-    const sortedPlates = [...this.platesData.sort((a, b) => a.index - b.index)]
+    const sortedPlates = [...this.platesData].sort((a, b) => a.index - b.index)
     this.platesData = sortedPlates
   }
 }

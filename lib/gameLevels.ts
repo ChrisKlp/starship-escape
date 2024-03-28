@@ -1,11 +1,11 @@
-import { LevelData } from '@/constants/Types'
+import { LevelInitData } from '@/constants/Types'
 import parseLevelData from './gameLevelParser'
 import level1Data from './gameLevels/level1'
 import level2Data from './gameLevels/level2'
 import level3Data from './gameLevels/level3'
 import level4Data from './gameLevels/level4'
 
-export const gameLevels: Record<number, LevelData> = {
+export const gameLevels: Record<number, LevelInitData> = {
   1: level1Data,
   2: level2Data,
   3: level3Data,

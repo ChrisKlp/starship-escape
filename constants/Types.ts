@@ -83,6 +83,17 @@ export type LevelData = {
   data: PlateInitData[]
 }
 
+export type LevelInitData = {
+  id: string
+  name: string
+  difficulty: LevelDifficulty
+  data: {
+    index: number
+    plate: PlateId
+    rotate: number
+  }[]
+}
+
 export type MoveablePlate = {
   plate: BoardGridItem
   moveDirection: MoveDirection

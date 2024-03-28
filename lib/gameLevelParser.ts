@@ -1,4 +1,4 @@
-import { LevelData, PlateInitData } from '@/constants/Types'
+import { LevelData, LevelInitData, PlateInitData } from '@/constants/Types'
 import {
   BOARD_GRID_SIZE,
   MOVE_GRID_VALUE,
@@ -7,13 +7,23 @@ import {
 import {
   convertIndexToBoardXY,
   convertXYToIndex,
+  print,
   rotateArrNTimes,
 } from '@/utils/utils'
+import getGamePlate from './gamePlates'
 
-export default function parseLevelData(levelInitData: LevelData): LevelData {
+export default function parseLevelData(
+  levelInitData: LevelInitData
+): LevelData {
   return {
     ...levelInitData,
-    data: levelInitData.data.map((plateData) => parsePlateData(plateData)),
+    data: levelInitData.data.map((plateData) => {
+      const plate = {
+        ...plateData,
+        plate: getGamePlate(plateData.plate),
+      }
+      return parsePlateData(plate)
+    }),
   }
 }
 

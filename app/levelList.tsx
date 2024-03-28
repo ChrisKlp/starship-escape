@@ -11,9 +11,14 @@ export default function LevelListPage() {
     >
       <View style={styles.container}>
         <View style={styles.levelWrapper}>
+          {/* <Link href={`/level/1`}>
+            <View>
+              <Text style={styles.buttonText}>Level 1</Text>
+            </View>
+          </Link> */}
           {Object.entries(gameLevels).map(([key, levelData]) => (
-            <Link href={`/level/${levelData.id}`}>
-              <View key={key}>
+            <Link key={`${key}-${levelData.id}`} href={`/level/${key}`}>
+              <View>
                 <Text style={styles.buttonText}>{levelData.name}</Text>
               </View>
             </Link>

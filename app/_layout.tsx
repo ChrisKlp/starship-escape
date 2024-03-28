@@ -43,15 +43,12 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ backgroundColor: '#020711' }}>
       <ThemeProvider value={DarkTheme}>
-        <Stack
-          screenOptions={{
-            gestureEnabled: true,
-          }}
-        >
-          <Stack.Screen name="index" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="levelList" options={{ gestureEnabled: true }} />
+        <Stack>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="levelList" />
+          <Stack.Screen name="level/[id]" />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>

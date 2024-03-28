@@ -1,54 +1,59 @@
-import { LevelData, LevelDifficulty, PlateId } from '@/constants/Types'
+import {
+  LevelData,
+  LevelDifficulty,
+  LevelInitData,
+  PlateId,
+} from '@/constants/Types'
 import gamePlates from '../gamePlates'
 
-const level3Data: LevelData = {
+const level3Data: LevelInitData = {
   id: 'level3',
   name: 'Level 3',
   difficulty: LevelDifficulty.starter,
   data: [
     {
       index: 0,
-      plate: gamePlates[PlateId.L],
+      plate: PlateId.L,
       rotate: 2,
     },
     {
       index: 1,
-      plate: gamePlates[PlateId.T],
+      plate: PlateId.T,
       rotate: 1,
     },
     {
       index: 2,
-      plate: gamePlates[PlateId.Z],
+      plate: PlateId.Z,
       rotate: 0,
     },
     {
       index: 3,
-      plate: gamePlates[PlateId.Y],
+      plate: PlateId.Y,
       rotate: 3,
     },
     {
       index: 4,
-      plate: gamePlates[PlateId.X],
+      plate: PlateId.X,
       rotate: 1,
     },
     {
       index: 5,
-      plate: gamePlates[PlateId.B],
+      plate: PlateId.B,
       rotate: 1,
     },
     {
       index: 6,
-      plate: gamePlates[PlateId.S],
+      plate: PlateId.S,
       rotate: 0,
     },
     {
       index: 7,
-      plate: gamePlates[PlateId.E],
+      plate: PlateId.E,
       rotate: 0,
     },
     {
       index: 8,
-      plate: gamePlates[PlateId.D],
+      plate: PlateId.D,
       rotate: 0,
     },
   ],

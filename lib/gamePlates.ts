@@ -87,4 +87,8 @@ const gamePlates = {
   [PlateId.E]: plateE,
 }
 
-export default gamePlates
+function getGamePlate(id: PlateId): PlateModel {
+  return { ...gamePlates[id] }
+}
+
+export default getGamePlate

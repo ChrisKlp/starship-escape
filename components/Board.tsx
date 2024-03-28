@@ -34,7 +34,7 @@ import PressablePlate from './PressablePlate'
 type Props = {
   level: Level
   platesData: PlatesInitData
-  setEndGame: (isFinished: boolean) => void
+  // setEndGame: (isFinished: boolean) => void
   updateGame: (moveablePlate: MoveablePlate) => void
 }
 
@@ -49,12 +49,7 @@ export const initNextMoveValue = {
   toValue: 0,
 }
 
-export default function Board({
-  level,
-  platesData,
-  setEndGame,
-  updateGame,
-}: Props) {
+export default function Board({ level, platesData, updateGame }: Props) {
   const pressedValue = useSharedValue<PressedValue>(initPressedValue)
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
@@ -78,7 +73,6 @@ export default function Board({
 
   const onEscapeAnimationEnd = () => {
     'worklet'
-    runOnJS(setEndGame)(true)
   }
 
   const getAnimation = () => {
