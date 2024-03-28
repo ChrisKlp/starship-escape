@@ -1,21 +1,26 @@
-import GameLogo from '@/components/GameLogo'
+import { gameLevels } from '@/lib/gameLevels'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useNavigation } from 'expo-router'
 import { Link } from 'expo-router'
 import { StyleSheet, Text, View } from 'react-native'
 
-export default function HomePage() {
+export default function LevelListPage() {
   return (
     <LinearGradient
       colors={['#020711', '#142e65', '#020711']}
       style={{ flex: 1 }}
     >
       <View style={styles.container}>
-        <GameLogo />
-        <Link href={'/levelList'} style={styles.link}>
-          <View style={styles.button}>
-            <Text style={styles.buttonText}>Play Game</Text>
-          </View>
+        <View style={styles.levelWrapper}>
+          {Object.entries(gameLevels).map(([key, levelData]) => (
+            <Link href={`/level/${levelData.id}`}>
+              <View key={key}>
+                <Text style={styles.buttonText}>{levelData.name}</Text>
+              </View>
+            </Link>
+          ))}
+        </View>
+        <Link href={'/'}>
+          <Text style={styles.buttonText}>{`<- Back`}</Text>
         </Link>
       </View>
     </LinearGradient>
@@ -28,8 +33,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
   },
-  link: {
-    marginBottom: 100,
+  levelWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 30,
   },
   button: {
     alignItems: 'center',
@@ -42,7 +50,7 @@ const styles = StyleSheet.create({
   buttonText: {
     marginTop: 5,
     fontFamily: 'Teko500',
-    fontSize: 48,
+    fontSize: 36,
     color: '#fff',
   },
 })
