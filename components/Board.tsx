@@ -61,13 +61,18 @@ export default function Board({ level, platesData, updateGame }: Props) {
     return readyToMovePlates.find((p) => p.plate.index === plateIndex)
   }
 
+  const onAnimationEnd = () => {
+    'worklet'
+    pressedValue.value = initPressedValue
+    nextMoveValue.value = initNextMoveValue
+  }
+
   const onFlingAnimationEnd = (plateIndex: number) => {
     'worklet'
     const moveablePlate = findPlate(plateIndex)
     if (moveablePlate) {
       runOnJS(updateGame)(moveablePlate)
-      pressedValue.value = initPressedValue
-      nextMoveValue.value = initNextMoveValue
+      onAnimationEnd()
     }
   }
 
@@ -83,14 +88,17 @@ export default function Board({ level, platesData, updateGame }: Props) {
           onFlingAnimationEnd(nextMoveValue.value.plateIndex)
         )
       case PlateNextMoveTypes.blockedFling:
-        return getBlockedFlingAnimation(nextMoveValue.value.toValue)
+        return getBlockedFlingAnimation(
+          nextMoveValue.value.toValue,
+          onAnimationEnd
+        )
       case PlateNextMoveTypes.escape:
         return getEscapeAnimation(
           nextMoveValue.value.toValue,
           onEscapeAnimationEnd
         )
       default:
-        return getBlockedAnimation(nextMoveValue.value.toValue)
+        return getBlockedAnimation(nextMoveValue.value.toValue, onAnimationEnd)
     }
   }
 

@@ -40,7 +40,12 @@ export default function PressablePlate({
 
   const updatePressedValue = (direction: TDirections) => {
     'worklet'
-    pressedValue.value = { plateIndex: data.index, direction }
+    if (
+      pressedValue.value.plateIndex === -1 &&
+      nextMoveValue.value.plateIndex === -1
+    ) {
+      pressedValue.value = { plateIndex: data.index, direction }
+    }
   }
 
   const flingDown = Gesture.Fling()

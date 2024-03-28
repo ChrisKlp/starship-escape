@@ -5,21 +5,30 @@ import {
   withTiming,
 } from 'react-native-reanimated'
 
-export function getBlockedAnimation(toValue: number) {
+export function getBlockedAnimation(toValue: number, callback: () => void) {
   'worklet'
   return withRepeat(
     withTiming(toValue, { duration: 100, reduceMotion: ReduceMotion.System }),
     2,
-    true
+    true,
+    (isFinished) => {
+      if (isFinished) callback()
+    }
   )
 }
 
-export function getBlockedFlingAnimation(toValue: number) {
+export function getBlockedFlingAnimation(
+  toValue: number,
+  callback: () => void
+) {
   'worklet'
   return withRepeat(
     withTiming(toValue, { duration: 100, reduceMotion: ReduceMotion.System }),
     2,
-    true
+    true,
+    (isFinished) => {
+      if (isFinished) callback()
+    }
   )
 }
 
