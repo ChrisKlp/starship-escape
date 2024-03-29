@@ -1,7 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { useFonts } from 'expo-font'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
@@ -45,7 +44,7 @@ function RootLayoutNav() {
   return (
     <SafeAreaProvider style={{ backgroundColor: '#020711' }}>
       <ThemeProvider value={DarkTheme}>
-        <Stack>
+        <Stack screenOptions={{ animation: 'fade' }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="levelList" />
           <Stack.Screen name="level/[id]" />

@@ -7,7 +7,6 @@ import {
 import {
   convertIndexToBoardXY,
   convertXYToIndex,
-  print,
   rotateArrNTimes,
 } from '@/utils/utils'
 import getGamePlate from './gamePlates'

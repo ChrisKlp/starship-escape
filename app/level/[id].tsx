@@ -17,7 +17,7 @@ export default function LevelPage() {
       style={styles.container}
     >
       <GestureHandlerRootView style={styles.container}>
-        <Game key={Math.random()} level={level} />
+        <Game level={level} />
       </GestureHandlerRootView>
     </LinearGradient>
   )
