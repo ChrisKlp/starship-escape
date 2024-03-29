@@ -165,7 +165,6 @@ export default function Board({ level, platesData, updateGame }: Props) {
   }
 
   const handleEndGame = () => {
-    console.log('end game')
     const shipIndex = platesData.findIndex(
       (p) => p.plate.type === PlateType.ship
     )

@@ -1,3 +1,4 @@
+import LevelListItem from '@/components/LevelListItem'
 import { gameLevels } from '@/lib/gameLevels'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Link } from 'expo-router'
@@ -11,17 +12,13 @@ export default function LevelListPage() {
     >
       <View style={styles.container}>
         <View style={styles.levelWrapper}>
-          {/* <Link href={`/level/1`}>
-            <View>
-              <Text style={styles.buttonText}>Level 1</Text>
-            </View>
-          </Link> */}
-          {Object.entries(gameLevels).map(([key, levelData]) => (
-            <Link key={`${key}-${levelData.id}`} href={`/level/${key}`}>
-              <View>
-                <Text style={styles.buttonText}>{levelData.name}</Text>
-              </View>
-            </Link>
+          {Object.entries(gameLevels).map(([key, { id, difficulty, name }]) => (
+            <LevelListItem
+              key={`${key}-${id}`}
+              data={{ id, difficulty, name }}
+              index={key}
+              isActive={+key < 3}
+            />
           ))}
         </View>
         <Link href={'/'}>
@@ -39,10 +36,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   levelWrapper: {
+    marginHorizontal: 8,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 30,
   },
   button: {
     alignItems: 'center',
