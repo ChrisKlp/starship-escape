@@ -77,15 +77,13 @@ export type PlateInitData = {
 }
 
 export type LevelData = {
-  id: string
-  name: string
+  id: number
   difficulty: LevelDifficulty
   data: PlateInitData[]
 }
 
 export type LevelInitData = {
-  id: string
-  name: string
+  id: number
   difficulty: LevelDifficulty
   data: {
     index: number

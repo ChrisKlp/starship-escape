@@ -22,7 +22,7 @@ import {
   getEscapeAnimation,
   getFlingAnimation,
 } from '@/lib/boardAnimations'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import {
   runOnJS,
@@ -33,9 +33,6 @@ import PressablePlate from './PressablePlate'
 
 type Props = {
   level: Level
-  platesData: PlatesInitData
-  // setEndGame: (isFinished: boolean) => void
-  updateGame: (moveablePlate: MoveablePlate) => void
 }
 
 export const initPressedValue = {
@@ -49,12 +46,20 @@ export const initNextMoveValue = {
   toValue: 0,
 }
 
-export default function Board({ level, platesData, updateGame }: Props) {
+export default function Board({ level }: Props) {
+  const [platesData, setPlatesData] = useState<PlatesInitData>(
+    level.getPlatesData()
+  )
   const pressedValue = useSharedValue<PressedValue>(initPressedValue)
   const nextMoveValue = useSharedValue<NextMoveValue>(initNextMoveValue)
 
-  const { isGameFinished, readyToMoveIndexes, readyToMovePlates } =
+  const { isGameFinished, readyToMoveIndexes, readyToMovePlates, movesCount } =
     level.getGameStatus()
+
+  const updateGame = (movedPlate: MoveablePlate) => {
+    const updatedLevelData = level.getMovedPlatesData(movedPlate)
+    setPlatesData(updatedLevelData)
+  }
 
   const findPlate = (plateIndex: number) => {
     'worklet'
@@ -204,6 +209,7 @@ export default function Board({ level, platesData, updateGame }: Props) {
                 pressedValue={pressedValue}
                 nextMoveValue={nextMoveValue}
                 getAnimation={getAnimation}
+                movesCount={movesCount}
               >
                 <Plate data={data} isMoveable={isMoveablePlate} />
               </PressablePlate>
@@ -218,6 +224,7 @@ export default function Board({ level, platesData, updateGame }: Props) {
                 data={data}
                 nextMoveValue={nextMoveValue}
                 getAnimation={getAnimation}
+                movesCount={movesCount}
               ></Obstacle>
             )
           })}

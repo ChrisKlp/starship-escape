@@ -55,3 +55,7 @@ export function rotateArrNTimes<T>(gridArr: T[], rotateN: number): T[] {
 export function print(data: any) {
   console.log(JSON.stringify(data, null, 2))
 }
+
+export function getRandomArbitrary(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}

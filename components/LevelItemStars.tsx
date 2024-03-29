@@ -11,8 +11,8 @@ export default function LevelItemStars({ points = 0 }: Props) {
   return (
     <View style={styles.container}>
       {arr.map((i) => (
-        <View style={{ width: '24%' }}>
-          <StarSvg key={i} isActive={points > i} />
+        <View key={i} style={{ width: '24%' }}>
+          <StarSvg isActive={points > i} />
         </View>
       ))}
     </View>

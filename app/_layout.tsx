@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
+import { Platform } from 'react-native'
 
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -44,7 +45,11 @@ function RootLayoutNav() {
   return (
     <SafeAreaProvider style={{ backgroundColor: '#020711' }}>
       <ThemeProvider value={DarkTheme}>
-        <Stack screenOptions={{ animation: 'fade' }}>
+        <Stack
+          screenOptions={{
+            animation: Platform.OS === 'ios' ? 'fade' : 'default',
+          }}
+        >
           <Stack.Screen name="index" />
           <Stack.Screen name="levelList" />
           <Stack.Screen name="level/[id]" />

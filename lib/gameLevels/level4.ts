@@ -2,8 +2,7 @@ import { LevelDifficulty, LevelInitData, PlateId } from '@/constants/Types'
 import gamePlates from '../gamePlates'
 
 const level4Data: LevelInitData = {
-  id: 'level4',
-  name: 'Level 4',
+  id: 4,
   difficulty: LevelDifficulty.starter,
   data: [
     {

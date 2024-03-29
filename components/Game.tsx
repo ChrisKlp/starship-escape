@@ -16,22 +16,14 @@ type Props = {
 }
 
 export default function Game({ level }: Props) {
-  const [platesData, setPlatesData] = useState<PlatesInitData>(
-    level.getPlatesData()
-  )
   const opacity = useSharedValue(0)
   const scale = useSharedValue(0.8)
 
-  const updateGame = (movedPlate: MoveablePlate) => {
-    const updatedLevelData = level.getMovedPlatesData(movedPlate)
-    setPlatesData(updatedLevelData)
-  }
-
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: withDelay(100, withTiming(opacity.value, { duration: 200 })),
+    opacity: withTiming(opacity.value, { duration: 200 }),
     transform: [
       {
-        scale: withDelay(100, withTiming(scale.value, { duration: 200 })),
+        scale: withTiming(scale.value, { duration: 200 }),
       },
     ],
   }))
@@ -43,7 +35,7 @@ export default function Game({ level }: Props) {
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      <Board level={level} platesData={platesData} updateGame={updateGame} />
+      <Board level={level} />
     </Animated.View>
   )
 }

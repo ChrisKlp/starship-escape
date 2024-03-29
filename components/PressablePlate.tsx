@@ -6,6 +6,7 @@ import {
   PressedValue,
   TDirections,
 } from '@/constants/Types'
+import { useEffect } from 'react'
 import {
   Directions,
   Gesture,
@@ -16,6 +17,8 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
+  withTiming,
 } from 'react-native-reanimated'
 
 type Props = {
@@ -25,6 +28,7 @@ type Props = {
   pressedValue: SharedValue<PressedValue>
   nextMoveValue: SharedValue<NextMoveValue>
   getAnimation: () => number
+  movesCount: number
 }
 
 export default function PressablePlate({
@@ -34,9 +38,12 @@ export default function PressablePlate({
   pressedValue,
   nextMoveValue,
   getAnimation,
+  movesCount,
 }: Props) {
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
+  const scale = useSharedValue(1)
+  const opacity = useSharedValue(1)
 
   const updatePressedValue = (direction: TDirections) => {
     'worklet'
@@ -98,9 +105,22 @@ export default function PressablePlate({
         {
           translateY: translateY.value,
         },
+        {
+          scale: scale.value,
+        },
       ],
+      opacity: opacity.value,
     }
   })
+
+  useEffect(() => {
+    if (movesCount === 0) {
+      scale.value = 0.8
+      opacity.value = 0
+      scale.value = withDelay(data.index * 100, withTiming(1))
+      opacity.value = withDelay(data.index * 100, withTiming(1))
+    }
+  }, [])
 
   return data.plate.type !== PlateType.blank ? (
     <GestureDetector

@@ -1,8 +1,7 @@
 import { LevelDifficulty, LevelInitData, PlateId } from '@/constants/Types'
 
 const level1Data: LevelInitData = {
-  id: 'level1',
-  name: 'Level 1',
+  id: 1,
   difficulty: LevelDifficulty.starter,
   data: [
     {

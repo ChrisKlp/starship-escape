@@ -21,11 +21,12 @@ import {
 import { chunkArray, compareArrays, convertIndexToBoardXY } from '@/utils/utils'
 
 export default class Level {
+  private movesCount = 0
   private platesData: PlatesInitData = []
   private boardGrid: BoardGrid = []
   private obstacleGrid: ObstacleGrid = []
-  private blankPlateIndex: number = -1
-  private isGameFinished: boolean = false
+  private blankPlateIndex = -1
+  private isGameFinished = false
 
   constructor(levelInitData: LevelData) {
     this.platesData = levelInitData.data
@@ -58,11 +59,13 @@ export default class Level {
       readyToMoveIndexes,
       readyToMovePlates,
       isGameFinished: this.isGameFinished,
+      movesCount: this.movesCount,
     }
   }
 
   getMovedPlatesData(movedPlate: MoveablePlate) {
     const newPlates = this.getUpdatedPlatesData(movedPlate)
+    this.movesCount += 1
     this.platesData = newPlates
     this.updateData()
     return this.platesData

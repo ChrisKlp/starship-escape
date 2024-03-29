@@ -7,8 +7,7 @@ import {
 import gamePlates from '../gamePlates'
 
 const level3Data: LevelInitData = {
-  id: 'level3',
-  name: 'Level 3',
+  id: 3,
   difficulty: LevelDifficulty.starter,
   data: [
     {

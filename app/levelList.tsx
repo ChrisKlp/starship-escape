@@ -12,13 +12,8 @@ export default function LevelListPage() {
     >
       <View style={styles.container}>
         <View style={styles.levelWrapper}>
-          {Object.entries(gameLevels).map(([key, { id, difficulty, name }]) => (
-            <LevelListItem
-              key={`${key}-${id}`}
-              data={{ id, difficulty, name }}
-              index={key}
-              isActive={+key < 3}
-            />
+          {Object.entries(gameLevels).map(([key, { id }]) => (
+            <LevelListItem key={`${key}-${id}`} id={id} isActive={id < 9} />
           ))}
         </View>
         <Link href={'/'}>

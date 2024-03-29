@@ -5,18 +5,23 @@ import {
   PlateType,
 } from '@/constants/Types'
 import { OBSTACLE_SIZE, PLATE_SIZE } from '@/constants/gameConstants'
+import { useEffect, useRef } from 'react'
 import { Image, StyleSheet, View } from 'react-native'
 import Animated, {
   SharedValue,
   useAnimatedReaction,
+  useAnimatedRef,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
+  withTiming,
 } from 'react-native-reanimated'
 
 type Props = {
   data: PlateInitData
   nextMoveValue: SharedValue<NextMoveValue>
   getAnimation: () => number
+  movesCount: number
 }
 
 const imageList = {
@@ -30,9 +35,17 @@ const imageList = {
   [PlateId.Z]: require('@/assets/images/plates/plateZ.png'),
 }
 
-export default function Obstacle({ data, nextMoveValue, getAnimation }: Props) {
+export default function Obstacle({
+  data,
+  nextMoveValue,
+  getAnimation,
+  movesCount,
+}: Props) {
   const translateX = useSharedValue(0)
   const translateY = useSharedValue(0)
+  const scale = useSharedValue(1)
+  const opacity = useSharedValue(1)
+  const firstRender = useRef(false)
 
   const dataId = data.plate.id as keyof typeof imageList
   const imageSource = imageList[dataId]
@@ -63,9 +76,22 @@ export default function Obstacle({ data, nextMoveValue, getAnimation }: Props) {
         {
           translateY: translateY.value,
         },
+        {
+          scale: scale.value,
+        },
       ],
+      opacity: opacity.value,
     }
   })
+
+  useEffect(() => {
+    if (movesCount === 0) {
+      scale.value = 2
+      opacity.value = 0
+      scale.value = withDelay(data.index * 100, withTiming(1))
+      opacity.value = withDelay(data.index * 100, withTiming(1))
+    }
+  }, [])
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>

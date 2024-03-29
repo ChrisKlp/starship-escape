@@ -1,35 +1,31 @@
-import { LevelData } from '@/constants/Types'
 import { LEVEL_ICON_WIDTH } from '@/constants/gameConstants'
 import { Link } from 'expo-router'
 import { ImageBackground, StyleSheet, Text, View } from 'react-native'
 import LevelItemStars from './LevelItemStars'
 
 type Props = {
-  data: Omit<LevelData, 'data'>
+  id: number
   isActive?: boolean
-  index: string
 }
 
 const imageList = {
   1: require('@/assets/images/asteroid1.png'),
   2: require('@/assets/images/asteroid2.png'),
   3: require('@/assets/images/asteroid3.png'),
-  4: require('@/assets/images/asteroid4.png'),
 }
 
-export default function LevelListItem({
-  data,
-  index,
-  isActive = false,
-}: Props) {
-  const { difficulty, id, name } = data
-  const dataId = (+index % 4 || 4) as keyof typeof imageList
+export default function LevelListItem({ id, isActive = false }: Props) {
+  const dataId = (id % 3 || 3) as keyof typeof imageList
   const imageSource = imageList[dataId]
   return (
-    <Link href={`/level/${index}`} disabled={!isActive}>
+    <Link
+      href={`/level/${id}`}
+      disabled={!isActive}
+      style={{ marginBottom: 20 }}
+    >
       <View style={[styles.container, { opacity: isActive ? 1 : 0.4 }]}>
         <ImageBackground style={[styles.backgroundImage]} source={imageSource}>
-          <Text style={styles.levelName}>{index}</Text>
+          <Text style={styles.levelName}>{id}</Text>
           {isActive && <LevelItemStars />}
         </ImageBackground>
       </View>

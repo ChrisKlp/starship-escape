@@ -1,3 +1,4 @@
+import DelayedComponent from '@/components/DelayedComponent'
 import Game from '@/components/Game'
 import Level from '@/lib/Level'
 import { getGameLevel } from '@/lib/gameLevels'
@@ -17,7 +18,9 @@ export default function LevelPage() {
       style={styles.container}
     >
       <GestureHandlerRootView style={styles.container}>
-        <Game level={level} />
+        <DelayedComponent>
+          <Game level={level} />
+        </DelayedComponent>
       </GestureHandlerRootView>
     </LinearGradient>
   )
