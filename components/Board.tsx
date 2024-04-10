@@ -30,6 +30,7 @@ import {
   useSharedValue,
 } from 'react-native-reanimated'
 import PressablePlate from './PressablePlate'
+import { router } from 'expo-router'
 
 type Props = {
   level: Level
@@ -83,6 +84,7 @@ export default function Board({ level }: Props) {
 
   const onEscapeAnimationEnd = () => {
     'worklet'
+    runOnJS(router.navigate)('/levelList/')
   }
 
   const getAnimation = () => {

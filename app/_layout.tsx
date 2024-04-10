@@ -48,6 +48,7 @@ function RootLayoutNav() {
         <Stack
           screenOptions={{
             animation: Platform.OS === 'ios' ? 'fade' : 'default',
+            headerShown: false,
           }}
         >
           <Stack.Screen name="index" />
